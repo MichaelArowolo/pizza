@@ -1,0 +1,85 @@
+use pizza;
+
+#add revenue column
+alter table sales_table add column revenue decimal(10,2);
+select * from sales_table;
+#update revenue column with value
+update sales_table set revenue = price*quantity;
+#Branch with the highest sales revenue
+select branch, sum(revenue) total_revenue from sales_table
+group by branch order by sum(revenue) desc limit 1;
+
+#Pizza type with the most quantity sold
+
+select pizza_sold, sum(quantity) total_quanity from sales_table
+group by pizza_sold order by sum(quantity) desc limit 1;
+
+#Average quantity of pizza sold per transaction for each branch
+
+select Branch, avg(quantity) average_No_pizza_sold from sales_table
+group by branch;
+
+# Average unit price for each pizza type
+
+select pizza_sold, avg(price)  Average_unit_price from sales_table
+group by pizza_sold;
+
+# Sales performance of different branches in terms of the total sales and total quantity
+
+select Branch, sum(quantity) total_No_pizza_sold, sum(revenue) toal_revenue  from sales_table
+group by branch;
+
+ # Sales performance of different pizza types in terms of the total sales and total quantity
+
+select pizza_sold, sum(quantity) total_quantity, sum(revenue) total_sales  from sales_table
+group by pizza_sold order by sum(quantity) desc, sum(revenue) desc;
+
+# Retrieve the Branch and Pizza_sold and the sales revenue excluding transactions with a sales_Price below 10000.
+
+select branch, pizza_sold, revenue from sales_table
+where price>=10000;
+
+
+
+# Calculate the total sales revenue for each Branch and Pizza_sold, 
+# and sort the results in descending order of revenue. 
+# Exclude records where the Quantity sold is less than 5.
+
+select  branch, sum(revenue) toal_revenue, sum(quantity) toal_pizza_sold  from sales_table
+where quantity>=5
+group by branch
+order by sum(revenue) desc;
+
+# Calculate the total sales revenue for each Branch and Pizza_sold combination, 
+# considering only transactions with a Price between 2000 and 3000.
+# Sort the results by revenue in descending order.
+
+select branch, sum(revenue) toal_revenue, sum(quantity) total_pizza_sold  from sales_table
+where price between 2000 and 30000
+group by branch
+order by sum(revenue) desc; 
+
+# Calculate the total sales revenue for each Branch and Pizza_sold combination, 
+# and then sort the results by revenue in descending order. For ties in revenue, sort by branch name in ascending order.
+
+select branch, sum(revenue) toal_revenue, pizza_sold  from sales_table
+group by branch, pizza_sold
+order by sum(revenue) desc, branch asc;
+
+# retrieve records of the branch,Pizza_Sold, Quantity, sales_price where the price is 
+# higher than 3000
+
+select branch, Pizza_Sold, Quantity, price from sales_table
+where price > 3000;
+
+# get all record that the sales_price is greater than the 9000
+
+select * from sales_table
+where price > 9000;
+
+
+# retrieve records of the branch,Pizza_Sold, Quantity, sales_price 
+# where the price is lower than the maimum price.
+
+select branch, pizza_sold, quantity, price from sales_table
+where price < (select max(price) from sales_table);
