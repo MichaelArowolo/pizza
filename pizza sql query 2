@@ -36,8 +36,8 @@ select sales_table.Pizza_Sold, sales_table.Price
 from sales_table join sales_target 
 on sales_table.Pizza_Sold=Sales_Target.Pizza
 where  Branch<> "ikoyi" 
-and sales_target.Sales_Target>(select avg(Sales_Target) from sales_target)
-and sales_table.Price>(select avg(Price) from sales_table);
+and sales_target.Sales_Target>(select avg(Sales_Target) from sales_target where  Branch<> "ikoyi" )
+and sales_table.Price>(select avg(Price) from sales_table where  Branch<> "ikoyi" );
 
 #5. Determine the top-performing pizza (Pizza_Sold) in each branch based on total revenue. 
 # Display the branch, pizza name, and total revenue for each top performer.
@@ -79,12 +79,17 @@ having sum(b.revenue) > a.Target;
 # 8. Calculate the average daily revenue and identify days where the revenue is above the average. 
 # Display the date, total revenue, and daily sales target for each above-average day
 
-select b.date, sum(b.revenue) sum_of_daily_sales, a.Target
-from daily_sales_target a
+select b.date, sum(b.revenue) total_reveune, c.Target
+from 
+(select avg(revenue) as mean_sales, date from sales_table
+group by date) a
 join sales_table b
-on a.day=b.date
-where  b.revenue > (select avg(revenue) from sales_table)
-group by b.Date, a.Target;
+on a.date=b.date
+join daily_sales_target c
+on b.date=c.day
+where b.revenue>a.mean_sales
+group by b.date, c.Target;
+
 
 
 # 9. List the days where the total revenue falls below the daily sales target.
