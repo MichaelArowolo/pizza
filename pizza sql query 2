@@ -18,7 +18,7 @@ select Pizza_Sold, sum(revenue) total_revenue, avg(revenue) average_revenue
 from sales_table
 group by Pizza_Sold;
 
-#3. Identify pizzas (Pizza_Sold) that are below the average sales target and
+ #3. Identify pizzas (Pizza_Sold) that are below the average sales target and
 # have generated revenue less than the overall average revenue.
 
 select sales_table.Pizza_Sold, sum(sales_table.revenue)
@@ -32,12 +32,13 @@ and  sum(sales_table.revenue)<(select avg(revenue) from sales_table) ;
 # 4. Find pizzas (Pizza_Sold) that have a price higher than the overall average price 
 # and a sales target greater than the overall average target. Exclude the 'Ikoyi' branch.
 
-select sales_table.Pizza_Sold, sales_table.Price
+select sales_table.Pizza_Sold
 from sales_table join sales_target 
 on sales_table.Pizza_Sold=Sales_Target.Pizza
 where  Branch<> "ikoyi" 
 and sales_target.Sales_Target>(select avg(Sales_Target) from sales_target where  Branch<> "ikoyi" )
-and sales_table.Price>(select avg(Price) from sales_table where  Branch<> "ikoyi" );
+and sales_table.Price>(select avg(Price) from sales_table where  Branch<> "ikoyi" )
+group by sales_table.Pizza_Sold;
 
 #5. Determine the top-performing pizza (Pizza_Sold) in each branch based on total revenue. 
 # Display the branch, pizza name, and total revenue for each top performer.
@@ -79,18 +80,15 @@ having sum(b.revenue) > a.Target;
 # 8. Calculate the average daily revenue and identify days where the revenue is above the average. 
 # Display the date, total revenue, and daily sales target for each above-average day
 
-select b.date, sum(b.revenue) total_reveune, c.Target
-from 
-(select avg(revenue) as mean_sales, date from sales_table
-group by date) a
-join sales_table b
-on a.date=b.date
-join daily_sales_target c
-on b.date=c.day
-where b.revenue>a.mean_sales
-group by b.date, c.Target;
 
-
+select a.date, sum(a.revenue), b.Target
+from sales_table a
+join daily_sales_target b
+on a.date=b.Day
+group by a.date, b.Target
+having sum(a.revenue)>(select avg(rev) from (select sum(a.revenue) rev
+from sales_table a join daily_sales_target b on a.date=b.day
+group by a.date) as avg_revenue);
 
 # 9. List the days where the total revenue falls below the daily sales target.
 # Include the date, total revenue, and daily sales target
